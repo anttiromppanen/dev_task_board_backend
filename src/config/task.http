@@ -1,0 +1,14 @@
+GET http://localhost:3001/api/task/
+Content-Type: application/json
+
+###
+
+POST http://localhost:3001/api/task/
+Content-Type: application/json
+
+{
+  "name": "test name",
+  "description": "test description",
+  "icon": "test icon",
+  "status": "test status"
+}
