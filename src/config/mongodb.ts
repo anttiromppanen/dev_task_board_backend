@@ -13,7 +13,6 @@ const clientOptions = {
 async function connectDb() {
   try {
     // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
-    logger.info(DB_URL);
     await mongoose.connect(DB_URL, { ...clientOptions, serverApi: "1" });
     await mongoose.connection.db.admin().command({ ping: 1 });
     logger.info(
