@@ -18,7 +18,7 @@ async function connectDb() {
     logger.info(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
-  } finally {
+  } catch {
     // Ensures that the client will close when you finish/error
     await mongoose.disconnect();
   }

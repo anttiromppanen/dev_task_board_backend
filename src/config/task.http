@@ -12,3 +12,13 @@ Content-Type: application/json
   "icon": "test icon",
   "status": "test status"
 }
+
+###
+
+POST http://localhost:3001/api/task/
+Content-Type: application/json
+
+{
+  "description": "test description",
+  "icon": "test icon",
+}

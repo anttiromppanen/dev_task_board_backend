@@ -3,17 +3,6 @@
 /* eslint-disable no-param-reassign */
 import mongoose from "mongoose";
 
-interface ITask {
-  name: string;
-  description: string;
-  icon: string;
-  status: string;
-}
-
-interface TaskModelInterface extends mongoose.Model<any> {
-  build(attr: ITask): any;
-}
-
 const taskSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -41,8 +30,6 @@ taskSchema.set("toJSON", {
   },
 });
 
-const Task = mongoose.model<any, TaskModelInterface>("Task", taskSchema);
-// adds build function to schema statics
-taskSchema.statics.build = (attr: ITask) => new Task(attr);
+const Task = mongoose.model("Task", taskSchema);
 
 export default Task;
