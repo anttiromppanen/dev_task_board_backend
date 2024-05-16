@@ -3,6 +3,15 @@
 /* eslint-disable no-param-reassign */
 import mongoose from "mongoose";
 
+export type IStatus = "In progess" | "Completed" | "Won't do";
+
+export interface ITask {
+  name: string;
+  description: string;
+  icon: string;
+  status: IStatus;
+}
+
 const taskSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,6 +27,10 @@ const taskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
+    enum: {
+      values: ["In progess", "Completed", "Won't do"],
+      message: "{VALUE} is not supported",
+    },
     required: true,
   },
 });

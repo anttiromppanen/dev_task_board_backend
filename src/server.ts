@@ -1,6 +1,8 @@
+import http from "http";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import logger from "../helpers/logger";
+import logger from "./helpers/logger";
+import app from "./app";
 
 dotenv.config();
 
@@ -10,7 +12,7 @@ const clientOptions = {
   serverApi: { version: "1", strict: true, deprecationErrors: true },
 };
 
-async function connectDb() {
+const connectDb = async () => {
   try {
     // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
     await mongoose.connect(DB_URL, { ...clientOptions, serverApi: "1" });
@@ -18,10 +20,22 @@ async function connectDb() {
     logger.info(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
-  } catch {
+  } catch (err) {
     // Ensures that the client will close when you finish/error
+    logger.error(err);
     await mongoose.disconnect();
   }
-}
+};
 
-export default connectDb;
+const startServer = async () => {
+  await connectDb();
+
+  const server = http.createServer(app);
+  const PORT = process.env.PORT || 3001;
+
+  server.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch(console.dir);
