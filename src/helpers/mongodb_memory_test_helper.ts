@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import Task from "../models/Task";
-import { initialTestTasks } from "./test_helper";
+import logger from "./logger";
+import { initialTestTaskboard } from "./test_helper";
 
 let mongoDb: MongoMemoryServer;
 
@@ -17,7 +17,11 @@ export const cleanData = async (): Promise<void> => {
 };
 
 export const insertInitialData = async () => {
-  await Task.insertMany(initialTestTasks);
+  try {
+    await initialTestTaskboard.save();
+  } catch (error) {
+    logger.error("Error creating mock initial testboard", error);
+  }
 };
 
 export const disconnect = async (): Promise<void> => {

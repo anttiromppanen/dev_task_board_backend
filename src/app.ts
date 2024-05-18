@@ -3,14 +3,16 @@ import dotenv from "dotenv";
 import express from "express";
 import { errorHandler, unknownEndpoint } from "./helpers/middleware";
 import requestLogger from "./helpers/requestLogger";
-import taskRoute from "./route/task_route";
+import taskboardRoute from "./route/taskboard_route";
+import taskboardTaskRoute from "./route/taskboard_task_route";
 
 dotenv.config();
 const app = express();
 app.use(bodyParser.json()); // parse application/json
 
 app.use(requestLogger);
-app.use("/api/task", taskRoute);
+app.use("/api/taskboard", taskboardRoute);
+app.use("/api/taskboard/", taskboardTaskRoute);
 
 app.use(unknownEndpoint);
 app.use(errorHandler);

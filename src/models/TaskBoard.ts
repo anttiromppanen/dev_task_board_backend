@@ -3,7 +3,7 @@
 /* eslint-disable no-param-reassign */
 import mongoose from "mongoose";
 
-export type IStatus = "In progess" | "Completed" | "Won't do";
+export type IStatus = "In progress" | "Completed" | "Won't do";
 
 export interface ITask {
   name: string;
@@ -28,11 +28,27 @@ const taskSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: {
-      values: ["In progess", "Completed", "Won't do"],
+      values: ["In progress", "Completed", "Won't do"],
       message: "{VALUE} is not supported",
     },
     required: true,
   },
+});
+
+export const TaskModel = mongoose.model("Task", taskSchema);
+
+export interface ITaskBoard {
+  name: string;
+  tasks: ITask[];
+}
+
+const taskBoardSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    maxlength: [30, "Name cannot be over 30 characters long"],
+  },
+  tasks: [taskSchema],
 });
 
 taskSchema.set("toJSON", {
@@ -43,6 +59,14 @@ taskSchema.set("toJSON", {
   },
 });
 
-const Task = mongoose.model("Task", taskSchema);
+taskBoardSchema.set("toJSON", {
+  transform: (_, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
 
-export default Task;
+const TaskBoard = mongoose.model("TaskBoard", taskBoardSchema);
+
+export default TaskBoard;

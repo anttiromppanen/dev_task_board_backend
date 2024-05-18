@@ -4,6 +4,11 @@ Content-Type: application/json
 
 ###
 
+GET http://localhost:3001/api/task/123456
+Content-Type: application/json
+
+###
+
 // invalid post request; wrong status value
 POST http://localhost:3001/api/task/
 Content-Type: application/json
@@ -13,15 +18,4 @@ Content-Type: application/json
   "description": "test description",
   "icon": "test icon",
   "status": "test status"
-}
-
-###
-
-// missing fields post request
-POST http://localhost:3001/api/task/
-Content-Type: application/json
-
-{
-  "description": "test description",
-  "icon": "test icon",
 }

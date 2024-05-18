@@ -2,5 +2,5 @@ import expressPino from "express-pino-logger";
 
 export default expressPino({
   level: "info",
-  enabled: true,
+  enabled: process.env.NODE_ENV !== "test",
 });

@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { Error } from "mongoose";
-import logger from "./logger";
 
 const unknownEndpoint = (request: Request, response: Response) => {
   response.status(404).send({ error: "unknown endpoint" });
@@ -12,8 +11,13 @@ const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log("error:", err);
+  if (process.env.NODE_ENV !== "test") {
+    console.log("error:", err);
+  }
 
+  if (err.name === "CastError") {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
   if (err.name === "ValidationError") {
     return res.status(400).json({ error: err.message });
   }
