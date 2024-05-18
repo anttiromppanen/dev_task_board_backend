@@ -33,12 +33,3 @@ export const initialTestTaskboard = new TaskBoard({
   name: "Initial test taskboard",
   tasks: initialTestTasks,
 });
-
-export const generateMockObjectId = () => {
-  const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
-  const machineIdentifier = "abcdef";
-  const processIdentifier = "1234";
-  const counter = "56789a";
-
-  return timestamp + machineIdentifier + processIdentifier + counter;
-};

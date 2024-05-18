@@ -16,14 +16,17 @@ const taskSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    minlength: 1,
   },
   description: {
     type: String,
     required: true,
+    minlength: 1,
   },
   icon: {
     type: String,
     required: true,
+    minlength: 1,
   },
   status: {
     type: String,

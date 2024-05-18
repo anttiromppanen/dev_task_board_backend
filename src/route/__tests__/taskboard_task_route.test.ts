@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import mongoose from "mongoose";
 import supertest from "supertest";
 import {
   afterAll,
@@ -8,7 +9,6 @@ import {
   expect,
   test,
 } from "vitest";
-import mongoose from "mongoose";
 import app from "../../app";
 import {
   cleanData,
@@ -16,11 +16,7 @@ import {
   disconnect,
   insertInitialData,
 } from "../../helpers/mongodb_memory_test_helper";
-import {
-  customMongoId,
-  initialTestTaskboard,
-  initialTestTasks,
-} from "../../helpers/test_helper";
+import { customMongoId, initialTestTasks } from "../../helpers/test_helper";
 
 const api = supertest(app);
 
@@ -140,5 +136,101 @@ describe("api /api/taskboard", () => {
     });
   });
 
-  // describe("PUT", () => {});
+  describe("PUT", () => {
+    test("should return 200 for successful update", async () => {
+      const taskboardId = customMongoId;
+      const taskboard = await api.get(`/api/taskboard/${taskboardId}`);
+      const firstTask = taskboard.body.tasks[0];
+
+      await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send({ ...firstTask, description: "Updated task" })
+        .expect(200);
+
+      await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send({ ...firstTask, name: "Updated name" })
+        .expect(200);
+
+      await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send({ ...firstTask, icon: "Updated icon" })
+        .expect(200);
+
+      await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send({ ...firstTask, status: "In progress" })
+        .expect(200);
+    });
+
+    test("should update fields when successful request", async () => {
+      const taskboardId = customMongoId;
+      const taskboard = await api.get(`/api/taskboard/${taskboardId}`);
+      const firstTask = taskboard.body.tasks[0];
+
+      const response = await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send({
+          name: "Updated name",
+          description: "Updated task",
+          icon: "Updated icon",
+          status: "Won't do",
+        })
+        .expect(200);
+
+      expect(response.body.tasks[0]).toStrictEqual({
+        id: firstTask.id,
+        name: "Updated name",
+        description: "Updated task",
+        icon: "Updated icon",
+        status: "Won't do",
+      });
+    });
+
+    test("should return 404 when taskboard not found", async () => {
+      const randomTaskboardId = new mongoose.Types.ObjectId();
+
+      const response = await api
+        .put(`/api/taskboard/${randomTaskboardId}/task/task1234`)
+        .set("Content-Type", "application/json")
+        .send({});
+
+      expect(response.statusCode).toBe(404);
+      if (response.error)
+        expect(response.error.text).toContain("Taskboard not found");
+    });
+
+    test("should return 404 when task not found", async () => {
+      const taskboardId = customMongoId;
+
+      const response = await api
+        .put(`/api/taskboard/${taskboardId}/task/task1234`)
+        .set("Content-Type", "application/json")
+        .send({});
+
+      expect(response.statusCode).toBe(404);
+      if (response.error)
+        expect(response.error.text).toContain("Task not found");
+    });
+
+    test("should not accepct empty values", async () => {
+      const taskboardId = customMongoId;
+      const taskboard = await api.get(`/api/taskboard/${taskboardId}`);
+      const firstTask = taskboard.body.tasks[0];
+      const newValues = { name: "", description: "", icon: "", status: "" };
+
+      const response = await api
+        .put(`/api/taskboard/${taskboardId}/task/${firstTask.id}`)
+        .set("Content-Type", "application/json")
+        .send(newValues);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.tasks[0]).toStrictEqual(firstTask);
+    });
+  });
 });

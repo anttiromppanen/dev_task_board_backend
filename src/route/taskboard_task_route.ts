@@ -68,9 +68,10 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
   const { taskBoardId, taskId } = req.params;
   const { name, description, icon, status } = req.body;
   let taskById;
+  let taskBoardById;
 
   try {
-    const taskBoardById = await TaskBoard.findById(taskBoardId);
+    taskBoardById = await TaskBoard.findById(taskBoardId);
 
     if (!taskBoardById)
       return res.status(404).json({ error: "Taskboard not found" });
@@ -79,10 +80,16 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
 
     if (!taskById) return res.status(404).json({ error: "Task not found" });
 
-    taskById.set("name", name);
-    taskById.set("description", description);
-    taskById.set("icon", icon);
-    taskById.set("status", status);
+    if (name.length > 0) taskById.set("name", name);
+    if (description.length > 0) taskById.set("description", description);
+    if (icon.length > 0) taskById.set("icon", icon);
+    if (
+      status.length > 0 ||
+      status === "In progress" ||
+      status === "Completed" ||
+      status === "Won't do"
+    )
+      taskById.set("status", status);
 
     await taskById.save();
   } catch (error) {
@@ -90,7 +97,7 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
     next(error);
   }
 
-  return res.status(200).json(taskById);
+  return res.status(200).json(taskBoardById);
 });
 
 export default router;
