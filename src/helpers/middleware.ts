@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { Error } from "mongoose";
+import logger from "./logger";
 
 const unknownEndpoint = (request: Request, response: Response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+  logger.error("Error: Unknown endpoint");
+  return response.status(404).json({ error: "unknown endpoint" });
 };
 
 const errorHandler = (
