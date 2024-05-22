@@ -17,13 +17,14 @@ import {
   insertInitialData,
 } from "../../helpers/mongodb_memory_test_helper";
 import { customMongoId, initialTestTasks } from "../../helpers/test_helper";
+import { ITask } from "../../models/TaskBoard";
 
 const api = supertest(app);
 
-const newNote = {
+const newTask: ITask = {
   name: "New test note",
   description: "New description",
-  icon: "New icon",
+  icon: "PresentationChart",
   status: "Won't do",
 };
 
@@ -67,20 +68,32 @@ describe("api /api/taskboard", () => {
       const response = await api
         .post(`/api/taskboard/${taskboardId}/task`)
         .set("Content-Type", "application/json")
-        .send(newNote);
+        .send(newTask);
 
       expect(response.statusCode).toBe(201);
-      expect(response.body.name).toEqual(newNote.name);
-      expect(response.body.description).toEqual(newNote.description);
-      expect(response.body.icon).toEqual(newNote.icon);
-      expect(response.body.status).toEqual(newNote.status);
+      expect(response.body.name).toEqual(newTask.name);
+      expect(response.body.description).toEqual(newTask.description);
+      expect(response.body.icon).toEqual(newTask.icon);
+      expect(response.body.status).toEqual(newTask.status);
+    });
+
+    test("should return 400 when icon value is invalid", async () => {
+      const taskboardId = customMongoId;
+      const taskInvalidIcon = { ...newTask, icon: "Invalid icon" };
+
+      const response = await api
+        .post(`/api/taskboard/${taskboardId}/task`)
+        .set("Content-Type", "application/json")
+        .send(taskInvalidIcon);
+
+      expect(response.statusCode).toBe(400);
     });
 
     test("should return 400 when fields are missing", async () => {
-      const { name, ...noteWithoutName } = newNote;
-      const { description, ...noteWithoutDescription } = newNote;
-      const { icon, ...noteWithoutIcon } = newNote;
-      const { status, ...noteWithoutStatus } = newNote;
+      const { name, ...noteWithoutName } = newTask;
+      const { description, ...noteWithoutDescription } = newTask;
+      const { icon, ...noteWithoutIcon } = newTask;
+      const { status, ...noteWithoutStatus } = newTask;
 
       const taskboardId = customMongoId;
 
@@ -115,7 +128,7 @@ describe("api /api/taskboard", () => {
       const response = await api
         .post(`/api/taskboard/${randomTaskboardId}/task`)
         .set("Content-Type", "application/json")
-        .send(newNote);
+        .send(newTask);
 
       expect(response.statusCode).toBe(404);
       if (response.error)
@@ -128,7 +141,7 @@ describe("api /api/taskboard", () => {
       const response = await api
         .post(`/api/taskboard/${invalidId}/task`)
         .set("Content-Type", "application/json")
-        .send(newNote);
+        .send(newTask);
 
       expect(response.statusCode).toBe(400);
       if (response.error)
@@ -221,7 +234,8 @@ describe("api /api/taskboard", () => {
     test("should not accepct empty values", async () => {
       const taskboardId = customMongoId;
       const taskboard = await api.get(`/api/taskboard/${taskboardId}`);
-      const firstTask = taskboard.body.tasks[0];
+      // description can be empty string, other fields should stay original
+      const firstTask = { ...taskboard.body.tasks[0], description: "" };
       const newValues = { name: "", description: "", icon: "", status: "" };
 
       const response = await api

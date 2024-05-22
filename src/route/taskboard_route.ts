@@ -9,6 +9,20 @@ router.get("/", async (_, res) => {
   return res.status(200).json(result);
 });
 
+// post used instead of get for returning data for ease of use
+router.post("/get-multiple", async (req, res, next) => {
+  const { taskboards } = req.body;
+  let result;
+
+  try {
+    result = await TaskBoard.find().where("_id").in(taskboards).exec();
+  } catch (error) {
+    logger.error(error);
+    return next(error);
+  }
+  return res.status(200).json(result);
+});
+
 router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
   let result;
@@ -25,10 +39,11 @@ router.get("/:id", async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const { name } = req.body;
+  const { name, description } = req.body;
 
   const newTaskBoard = new TaskBoard({
     name,
+    description: description || "",
     tasks: [],
   });
 
@@ -46,7 +61,7 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:id", async (req, res, next) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, description } = req.body;
   let taskBoardById;
 
   try {
@@ -59,6 +74,7 @@ router.put("/:id", async (req, res, next) => {
       return res.status(404).json({ error: "Name cannot be empty" });
 
     taskBoardById.set("name", name);
+    taskBoardById.set("description", description || "");
 
     await taskBoardById.save();
   } catch (error) {

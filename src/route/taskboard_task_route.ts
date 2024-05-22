@@ -58,7 +58,7 @@ router.post("/:taskboardId/task/", async (req, res, next) => {
     await taskboardById.save();
   } catch (error) {
     logger.error("Error creating new task", error);
-    next(error);
+    return next(error);
   }
 
   return res.status(201).json(newTask);
@@ -80,14 +80,16 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
 
     if (!taskById) return res.status(404).json({ error: "Task not found" });
 
+    // description can be an empty string
+    taskById.set("description", description);
     if (name.length > 0) taskById.set("name", name);
-    if (description.length > 0) taskById.set("description", description);
     if (icon.length > 0) taskById.set("icon", icon);
     if (
       status.length > 0 ||
       status === "In progress" ||
       status === "Completed" ||
-      status === "Won't do"
+      status === "Won't do" ||
+      status === "Todo"
     )
       taskById.set("status", status);
 

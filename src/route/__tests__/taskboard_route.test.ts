@@ -69,6 +69,7 @@ describe("api /api/taskboard", () => {
     test("should return 201 when taskboard created succesfully", async () => {
       const newTaskBoard = {
         name: "Test taskboard",
+        description: "Test description",
       };
 
       const result = await api
@@ -78,6 +79,23 @@ describe("api /api/taskboard", () => {
 
       expect(result.statusCode).toBe(201);
       expect(result.body.name).toEqual(newTaskBoard.name);
+      expect(result.body.description).toEqual(newTaskBoard.description);
+      expect(result.body.tasks).toEqual([]);
+    });
+
+    test("should return 201 when description is empty", async () => {
+      const newTaskBoard = {
+        name: "Test taskboard",
+      };
+
+      const result = await api
+        .post("/api/taskboard")
+        .set("Content-Type", "application/json")
+        .send(newTaskBoard);
+
+      expect(result.statusCode).toBe(201);
+      expect(result.body.name).toEqual(newTaskBoard.name);
+      expect(result.body.description).toBe("");
       expect(result.body.tasks).toEqual([]);
     });
 

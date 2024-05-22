@@ -3,12 +3,21 @@
 /* eslint-disable no-param-reassign */
 import mongoose from "mongoose";
 
-export type IStatus = "In progress" | "Completed" | "Won't do";
+// must match the status field from schema
+export type IStatus = "In progress" | "Completed" | "Won't do" | "Todo";
+// must match the icon field from schema
+type IconType =
+  | "Clock"
+  | "AcademicCap"
+  | "Camera"
+  | "CalendarDays"
+  | "CurrencyEuro"
+  | "PresentationChart";
 
 export interface ITask {
   name: string;
   description: string;
-  icon: string;
+  icon: IconType;
   status: IStatus;
 }
 
@@ -21,17 +30,26 @@ const taskSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
-    minlength: 1,
   },
   icon: {
     type: String,
+    enum: {
+      values: [
+        "Clock",
+        "AcademicCap",
+        "Camera",
+        "CalendarDays",
+        "CurrencyEuro",
+        "PresentationChart",
+      ],
+      message: "{VALUE} is not supported",
+    },
     required: true,
-    minlength: 1,
   },
   status: {
     type: String,
     enum: {
-      values: ["In progress", "Completed", "Won't do"],
+      values: ["In progress", "Completed", "Won't do", "Todo"],
       message: "{VALUE} is not supported",
     },
     required: true,
@@ -42,6 +60,7 @@ export const TaskModel = mongoose.model("Task", taskSchema);
 
 export interface ITaskBoard {
   name: string;
+  description: string;
   tasks: ITask[];
 }
 
@@ -51,6 +70,7 @@ const taskBoardSchema = new mongoose.Schema({
     required: true,
     maxlength: [30, "Name cannot be over 30 characters long"],
   },
+  description: String,
   tasks: [taskSchema],
 });
 
