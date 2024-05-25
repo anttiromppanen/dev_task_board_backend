@@ -72,7 +72,13 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
 
   try {
     taskBoardById = await TaskBoard.findById(taskBoardId);
-
+    console.log("------------- TEST TEST ------------");
+    console.log("------------- TEST TEST ------------");
+    console.log("------------- TEST TEST ------------");
+    console.log(taskBoardById);
+    console.log("------------- TEST TEST ------------");
+    console.log("------------- TEST TEST ------------");
+    console.log("------------- TEST TEST ------------");
     if (!taskBoardById)
       return res.status(404).json({ error: "Taskboard not found" });
 
@@ -93,10 +99,10 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
     )
       taskById.set("status", status);
 
-    await taskById.save();
+    await taskBoardById.save();
   } catch (error) {
     logger.error("Error updating task", error);
-    next(error);
+    return next(error);
   }
 
   return res.status(200).json(taskBoardById);

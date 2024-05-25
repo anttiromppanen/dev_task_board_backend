@@ -29,7 +29,6 @@ const taskSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
   },
   icon: {
     type: String,

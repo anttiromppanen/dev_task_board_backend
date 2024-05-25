@@ -1,5 +1,5 @@
 import express from "express";
-import TaskBoard from "../models/TaskBoard";
+import TaskBoard, { TaskModel } from "../models/TaskBoard";
 import logger from "../helpers/logger";
 
 const router = express.Router();
@@ -44,7 +44,33 @@ router.post("/", async (req, res, next) => {
   const newTaskBoard = new TaskBoard({
     name,
     description: description || "",
-    tasks: [],
+    tasks: [
+      new TaskModel({
+        name: "Task in Progress",
+        description: "",
+        icon: "Clock",
+        status: "In progress",
+      }),
+      new TaskModel({
+        name: "Task Completed",
+        description: "",
+        icon: "PresentationChart",
+        status: "Completed",
+      }),
+      new TaskModel({
+        name: "Task Won't Do",
+        description: "",
+        icon: "Camera",
+        status: "Won't do",
+      }),
+      new TaskModel({
+        name: "Task To Do",
+        description:
+          "Learn how to play volleyball and how to dominate the world",
+        icon: "AcademicCap",
+        status: "Todo",
+      }),
+    ],
   });
 
   let response;
