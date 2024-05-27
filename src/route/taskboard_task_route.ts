@@ -64,21 +64,15 @@ router.post("/:taskboardId/task/", async (req, res, next) => {
   return res.status(201).json(newTask);
 });
 
-router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
-  const { taskBoardId, taskId } = req.params;
+router.put("/:taskboardId/task/:taskId", async (req, res, next) => {
+  const { taskboardId, taskId } = req.params;
   const { name, description, icon, status } = req.body;
   let taskById;
   let taskBoardById;
 
   try {
-    taskBoardById = await TaskBoard.findById(taskBoardId);
-    console.log("------------- TEST TEST ------------");
-    console.log("------------- TEST TEST ------------");
-    console.log("------------- TEST TEST ------------");
-    console.log(taskBoardById);
-    console.log("------------- TEST TEST ------------");
-    console.log("------------- TEST TEST ------------");
-    console.log("------------- TEST TEST ------------");
+    taskBoardById = await TaskBoard.findById(taskboardId);
+
     if (!taskBoardById)
       return res.status(404).json({ error: "Taskboard not found" });
 
@@ -106,6 +100,44 @@ router.put("/:taskBoardId/task/:taskId", async (req, res, next) => {
   }
 
   return res.status(200).json(taskBoardById);
+});
+
+router.delete("/:taskboardId/task/:taskId", async (req, res, next) => {
+  const { taskboardId, taskId } = req.params;
+  let taskBoardById;
+
+  // starts a new transaction to ensure atomicity
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    taskBoardById = await TaskBoard.findById(taskboardId).session(session);
+
+    if (!taskBoardById)
+      return res.status(404).json({ error: "Taskboard not found" });
+
+    const taskIndex = taskBoardById.tasks.findIndex(
+      (task) => task.id === taskId,
+    );
+
+    if (taskIndex === -1)
+      return res.status(404).json({ error: "Task not found" });
+
+    taskBoardById.tasks.splice(taskIndex, 1);
+
+    await taskBoardById.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(204).json({});
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    logger.error("Error deleting task", error);
+    return next(error);
+  }
 });
 
 export default router;
